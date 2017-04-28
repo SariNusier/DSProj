@@ -1,0 +1,107 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{setspace}
+\usepackage{hyperref}
+
+\begin{document}
+\doublespacing
+\begin{titlepage}
+	\centering
+	\title{MSc Preliminary Project Report}
+	\author{Sari Nusier - 1317015}
+	\date{\today}
+	\maketitle
+\end{titlepage}
+
+\section{Introduction}
+
+The project will look into using different Supervised and Unsupervised Learning methods to segment and classify individual cells from drug and stem cell differentiation screens.
+
+Image analysis is an important tool that can help speed up drug discovery by identifying deceased cells using relatively cheap and accessible images. 
+
+The project will firstly look into methods for detecting and segmenting individual cells in an image and comparing their performance for our data set. Secondly, it will use the individual cell images to train a CNN to classify different types of cells (e.g. normal cells or dying cells, clumped cells, Fibronectin flattened cells). 
+
+\section{Background}
+Because the project will deal with both Machine Learning and Cell biology, literature from both field will be considered.
+
+\subsection{Cell Profiler}
+CellProfiler \cite{cellprofiler} \cite{cellprofilerweb} is an open source project developed in python that gives biologists easy access to image analysis tools. It is made up of a set of modules that can be inserted into a pipeline (the output of one module becomes the input of another).
+
+In particular, we are interested in the "IdentifyPrimaryObjects" module, which deals with identifying individual cells from an image. 
+
+\subsection{Image Segmentation}
+
+Cell profiler uses a multitude of algorithms to identify and segment the cells in an image \cite{Malpica}, \cite{Meyer}, \cite{Ortiz}. The algorithms are usually based on the watershed algorithm to identify the individual cells in a clump.
+
+Another interesting approach that will be considered is that of Ronneberger, Fishcer and Brox \cite{Ronneberger}, who look into using convolutional neural networks for segmenting an image.
+
+\subsection{Tensor Flow and Inception}
+
+TensorFlow\cite{tensorflow} is an open source framework for developing Machine Learning models. We will be using tensorflow throughout the project. We will also be using the Inception CNN\cite{inception} to classify the segmented cells.
+
+
+\section{Project Schedule}
+The project has 3 main objectives:
+\begin{enumerate}
+\item Image Segmentation:
+
+Test and compare multiple Segmentation methods on the different images provided (e.g. hipsci, g179).
+
+\item Supervised Classification
+
+Train the Inception CNN to classify the segmented cells and apply the models to Drug Screens and HIPSCI Lines datasets.
+
+\item Unsupervised class discovery
+
+Is it possible to identify classes within an image?
+\end{enumerate}
+
+The first objective must be completed by the middle of June. Work on the second objective has already started, but there is still some more work to be done for the segmentation part. The second objective must be completed by the end of July.
+
+The third and final objective is going to be started in the middle of July, and finished by the middle of August.
+
+The dissertation will be written throughout the summer, as parts of the objectives are completed.
+
+\newpage
+\begin{thebibliography}{9}
+\bibitem{cellprofiler}
+Kamentsky L, Jones TR, Fraser A, Bray M, Logan D, Madden K, Ljosa V, Rueden C, Harris GB, Eliceiri K, Carpenter AE (2011) Improved structure, function, and compatibility for CellProfiler: modular high-throughput image analysis software. Bioinformatics 2011/doi. PMID: 21349861 PMCID: PMC3072555
+
+\bibitem{cellprofilerweb}
+http://cellprofiler.org/
+
+\bibitem{Malpica}
+Malpica N, de Solorzano CO, Vaquero JJ, Santos, A, Vallcorba I, Garcia-Sagredo JM, del Pozo
+    F (1997) "Applying watershed algorithms to the segmentation of clustered nuclei."
+    \textit{Cytometry} 28, 289-297. (\href{http://dx.doi.org/10.1002/(SICI)1097-0320(19970801)28:4\%3C289::AID-CYTO3\%3E3.0.CO;2-7}{link})
+    
+\bibitem{Meyer}
+
+Meyer F, Beucher S (1990) "Morphological segmentation." \textit{J Visual Communication and Image
+    Representation} 1, 21-46. (\href{http://dx.doi.org/10.1016/1047-3203(90)90014-M}{link})
+ 
+\bibitem{Ortiz}   
+Ortiz de Solorzano C, Rodriguez EG, Jones A, Pinkel D, Gray JW, Sudar D, Lockett SJ. (1999)
+    "Segmentation of confocal microscope images of cell nuclei in thick tissue sections."
+    \textit{Journal of Microscopy-Oxford} 193, 212-226. (\href{http://dx.doi.org/10.1046/j.1365-2818.1999.00463.x}{link})
+ 
+\bibitem{Ronneberger}   
+Ronneberger O., Fischer P., Brox T. (2015) U-Net: Convolutional Networks for Biomedical Image Segmentation. In: Navab 
+
+\bibitem{tensorflow}
+Martín Abadi, Ashish Agarwal, Paul Barham, Eugene Brevdo,
+Zhifeng Chen, Craig Citro, Greg S. Corrado, Andy Davis,
+Jeffrey Dean, Matthieu Devin, Sanjay Ghemawat, Ian Goodfellow,
+Andrew Harp, Geoffrey Irving, Michael Isard, Rafal Jozefowicz, Yangqing Jia,
+Lukasz Kaiser, Manjunath Kudlur, Josh Levenberg, Dan Mané, Mike Schuster,
+Rajat Monga, Sherry Moore, Derek Murray, Chris Olah, Jonathon Shlens,
+Benoit Steiner, Ilya Sutskever, Kunal Talwar, Paul Tucker,
+Vincent Vanhoucke, Vijay Vasudevan, Fernanda Viégas,
+Oriol Vinyals, Pete Warden, Martin Wattenberg, Martin Wicke,
+Yuan Yu, and Xiaoqiang Zheng.
+TensorFlow: Large-scale machine learning on heterogeneous systems,
+2015. Software available from tensorflow.org.
+
+\bibitem{inception}
+Szegedy, C., Ioffe, S., Vanhoucke, V., & Alemi, A. (2016). Inception-v4, inception-resnet and the impact of residual connections on learning. arXiv preprint arXiv:1602.07261.
+\end{thebibliography}
+\end{document}
