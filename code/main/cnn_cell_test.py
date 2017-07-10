@@ -15,12 +15,11 @@
 
 import tensorflow as tf
 import math
-from tensorflow.examples.tutorials.mnist import input_data as mnist_data
+from imagepreprocessing import reading
 print("Tensorflow version " + tf.__version__)
 tf.set_random_seed(0)
 
 # Download images and labels into mnist.test (10K images+labels) and mnist.train (60K images+labels)
-mnist = mnist_data.read_data_sets("data", one_hot=True, reshape=False, validation_size=0)
 
 # neural network structure for this sample:
 #
@@ -39,7 +38,7 @@ mnist = mnist_data.read_data_sets("data", one_hot=True, reshape=False, validatio
 # input X: 28x28 grayscale images, the first dimension (None) will index the images in the mini-batch
 X = tf.placeholder(tf.float32, [None, 28, 28, 1])
 # correct answers will go here
-Y_ = tf.placeholder(tf.float32, [None, 10])
+Y_ = tf.placeholder(tf.float32, [None, 3])
 # variable learning rate
 lr = tf.placeholder(tf.float32)
 
@@ -59,8 +58,8 @@ B3 = tf.Variable(tf.ones([M])/10)
 
 W4 = tf.Variable(tf.truncated_normal([7 * 7 * M, N], stddev=0.1))
 B4 = tf.Variable(tf.ones([N])/10)
-W5 = tf.Variable(tf.truncated_normal([N, 10], stddev=0.1))
-B5 = tf.Variable(tf.ones([10])/10)
+W5 = tf.Variable(tf.truncated_normal([N, 3], stddev=0.1))
+B5 = tf.Variable(tf.ones([3])/10)
 
 # The model
 stride = 1  # output is 28x28
@@ -98,8 +97,8 @@ sess.run(init)
 # You can call this function in a loop to train the model, 100 images at a time
 for i in range(1000):
     # training on batches of 100 images with 100 labels
-    batch_X, batch_Y = mnist.train.next_batch(100)
-    train_data = {X: batch_X, Y_: batch_Y}
+    batch_X, batch_Y = reading.get_data()
+    train_data = {X: batch_X[:55], Y_: batch_Y[:55]}
 
     # learning rate decay
     max_learning_rate = 0.003
@@ -108,11 +107,11 @@ for i in range(1000):
     learning_rate = min_learning_rate + (max_learning_rate - min_learning_rate) * math.exp(-i/decay_speed)
 
     # the backpropagation training step
-    sess.run(train_step, {X: batch_X, Y_: batch_Y, lr: learning_rate})
+    sess.run(train_step, {X: batch_X[:55], Y_: batch_Y[:55], lr: learning_rate})
     a, c = sess.run([accuracy, cross_entropy], feed_dict=train_data)
     print "Accuracy: " + str(a)
 
-    test_data = {X: mnist.test.images, Y_: mnist.test.labels}
+    test_data = {X: batch_X[56:105], Y_: batch_Y[56:105]}
     a, c = sess.run([accuracy, cross_entropy], feed_dict=test_data)
     print "Test Accuracy: "+str(a)
     print i

@@ -14,7 +14,7 @@
 # limitations under the License.
 
 import tensorflow as tf
-from tensorflow.examples.tutorials.mnist import input_data as mnist_data
+from imagepreprocessing import reading
 print("Tensorflow version " + tf.__version__)
 tf.set_random_seed(0)
 
@@ -33,12 +33,11 @@ tf.set_random_seed(0)
 #          ·                                                        Y5 [batch, 10]
 
 # Download images and labels into mnist.test (10K images+labels) and mnist.train (60K images+labels)
-mnist = mnist_data.read_data_sets("data", one_hot=True, reshape=False, validation_size=0)
 
 # input X: 28x28 grayscale images, the first dimension (None) will index the images in the mini-batch
 X = tf.placeholder(tf.float32, [None, 28, 28, 1])
 # correct answers will go here
-Y_ = tf.placeholder(tf.float32, [None, 10])
+Y_ = tf.placeholder(tf.float32, [None, 3])
 
 # five layers and their number of neurons (tha last layer has 10 softmax neurons)
 L = 200
@@ -55,8 +54,8 @@ W3 = tf.Variable(tf.truncated_normal([M, N], stddev=0.1))
 B3 = tf.Variable(tf.zeros([N]))
 W4 = tf.Variable(tf.truncated_normal([N, O], stddev=0.1))
 B4 = tf.Variable(tf.zeros([O]))
-W5 = tf.Variable(tf.truncated_normal([O, 10], stddev=0.1))
-B5 = tf.Variable(tf.zeros([10]))
+W5 = tf.Variable(tf.truncated_normal([O, 3], stddev=0.1))
+B5 = tf.Variable(tf.zeros([3]))
 
 # The model
 XX = tf.reshape(X, [-1, 784])
@@ -83,22 +82,30 @@ train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 
 # init
 init = tf.global_variables_initializer()
-sess = tf.Session()
+saver = tf.train.Saver()
+sess = tf.InteractiveSession()
 sess.run(init)
 
 # You can call this function in a loop to train the model, 100 images at a time
 for i in range(1000):
     # training on batches of 100 images with 100 labels
-    batch_X, batch_Y = mnist.train.next_batch(100)
-    print batch_Y[0]
-    train_data = {X: batch_X, Y_: batch_Y}
+    batch_X, batch_Y = reading.get_data()
+    print batch_X.shape
+    print batch_Y.shape
+    train_data = {X: batch_X[:100], Y_: batch_Y[:100]}
 
     # the backpropagation training step
     sess.run(train_step, {X: batch_X, Y_: batch_Y})
     a, c = sess.run([accuracy, cross_entropy], feed_dict=train_data)
     print "Accuracy: " + str(a)
 
-    test_data = {X: mnist.test.images, Y_: mnist.test.labels}
+    test_data = {X: batch_X[56:105], Y_: batch_Y[56:105]}
     a, c = sess.run([accuracy, cross_entropy], feed_dict=test_data)
     print "Test Accuracy: "+str(a)
     print i
+
+save_path = saver.save(sess, "./my_model_final.ckpt")
+
+batch_X = reading.get_test_data()
+class_step = Y.eval(feed_dict={X: batch_X})
+y_pred = sess.run(class_step)
