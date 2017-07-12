@@ -9,6 +9,9 @@ def read_images():
         images.append(Image.open(fn))
     return images
 
+def read_from_server():
+    :q
+    
 
 def get_data():
     images = read_images()
