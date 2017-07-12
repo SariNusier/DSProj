@@ -92,7 +92,7 @@ for i in range(1000):
     batch_X, batch_Y = reading.get_data()
     print batch_X.shape
     print batch_Y.shape
-    train_data = {X: batch_X[:100], Y_: batch_Y[:100]}
+    train_data = {X: batch_X[:55], Y_: batch_Y[:55]}
 
     # the backpropagation training step
     sess.run(train_step, {X: batch_X, Y_: batch_Y})

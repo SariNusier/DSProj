@@ -98,7 +98,7 @@ sess.run(init)
 for i in range(1000):
     # training on batches of 100 images with 100 labels
     batch_X, batch_Y = reading.get_data()
-    train_data = {X: batch_X[:55], Y_: batch_Y[:55]}
+    train_data = {X: batch_X, Y_: batch_Y}
 
     # learning rate decay
     max_learning_rate = 0.003
@@ -107,7 +107,7 @@ for i in range(1000):
     learning_rate = min_learning_rate + (max_learning_rate - min_learning_rate) * math.exp(-i/decay_speed)
 
     # the backpropagation training step
-    sess.run(train_step, {X: batch_X[:55], Y_: batch_Y[:55], lr: learning_rate})
+    sess.run(train_step, {X: batch_X, Y_: batch_Y, lr: learning_rate})
     a, c = sess.run([accuracy, cross_entropy], feed_dict=train_data)
     print "Accuracy: " + str(a)
 
