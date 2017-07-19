@@ -4,3 +4,4 @@
 *.gz
 *.pdf
 *.out
+*.pyc
