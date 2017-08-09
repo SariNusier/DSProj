@@ -1,5 +1,28 @@
+from __future__ import print_function
+
 from PIL import Image
 import numpy as np
+from HTMLParser import HTMLParser
+import urllib2
+import numpy as np
+import sys
+import cStringIO
+
+
+class MyHTMLParser(HTMLParser):
+    def __init__(self):
+        HTMLParser.__init__(self)
+        self.prev_tag = ""
+        self.data = []
+
+    def handle_starttag(self, tag, attrs):
+        # print "Encountered a start tag:", tag
+        self.prev_tag = tag
+
+    def handle_data(self, data):
+        # print "Encountered some data  :", data
+        if self.prev_tag == 'a' and data.strip() != "":
+            self.data.append(urllib2.quote(data))
 
 
 def read_images():
@@ -9,9 +32,32 @@ def read_images():
         images.append(Image.open(fn))
     return images
 
+
 def read_from_server():
-    :q
-    
+    url_base = "http://10.200.102.18/"
+    url_dir = "G179-dataset/"
+    all_images = urllib2.urlopen(url_base + url_dir).read()
+
+    parser = MyHTMLParser()
+    parser.feed(all_images)
+    data = parser.data
+    imgs = []
+
+    print("Started Download!")
+    i = 1
+
+    for d in data:
+        print("\rProgress: %d/%d " % (i, len(data)), end='')
+        dl_img = urllib2.urlopen(url_base + url_dir + d).read()
+        asd = cStringIO.StringIO(dl_img)
+        img = Image.open(asd)
+        imgs.append(np.array(img))
+        i = i+1
+        if i == 10:
+            break
+
+    return imgs
+
 
 def get_data():
     images = read_images()

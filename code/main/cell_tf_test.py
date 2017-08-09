@@ -14,7 +14,7 @@
 # limitations under the License.
 
 import tensorflow as tf
-from imagepreprocessing import reading
+from imgpreproc import reading
 print("Tensorflow version " + tf.__version__)
 tf.set_random_seed(0)
 
