@@ -7,6 +7,7 @@ import urllib2
 import numpy as np
 import sys
 import cStringIO
+import os
 
 
 class MyHTMLParser(HTMLParser):
@@ -33,9 +34,9 @@ def read_images():
     return images
 
 
-def read_from_server():
-    url_base = "http://10.200.102.18/"
-    url_dir = "G179-dataset/"
+def read_from_server(url_base="http://10.200.102.18/", url_dir="G179-dataset/"):
+    """ Gets images using http and returns them as a list of numpy arrays"""
+
     all_images = urllib2.urlopen(url_base + url_dir).read()
 
     parser = MyHTMLParser()
@@ -43,6 +44,7 @@ def read_from_server():
     data = parser.data
     imgs = []
 
+    print("Found %d images!" % len(data))
     print("Started Download!")
     i = 1
 
@@ -52,10 +54,19 @@ def read_from_server():
         asd = cStringIO.StringIO(dl_img)
         img = Image.open(asd)
         imgs.append(np.array(img))
-        i = i+1
-        if i == 10:
-            break
+        i = i + 1
 
+    return imgs
+
+
+def read_local(path):
+    """ Gets images from local directory and returns them as a list of numpy arrays"""
+    files = os.listdir(path)
+    imgs = []
+    for f in files:
+        if f.endswith(".tiff") or f.endswith(".tif"):
+            img = Image.open(os.path.join(path, f))
+            imgs.append(np.array(img))
     return imgs
 
 
