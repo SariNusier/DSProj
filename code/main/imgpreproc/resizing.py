@@ -28,12 +28,10 @@ def resize2(img, width, height):
         bot = (height - orig_height) - top
 
     padded_img = np.lib.pad(img, ((top, bot), (left, right)), 'constant', constant_values=0)
-    print padded_img.shape
-    print orig_height
-    print orig_width
 
     if padded_img.shape[0] > height or padded_img.shape[1] > width:
-        return sliding_window(padded_img, width, height)
+        # return sliding_window(padded_img, width, height)
+        return np.array(Image.fromarray(padded_img).resize((28, 28)))
 
     return padded_img
 
@@ -51,7 +49,6 @@ def sliding_window(img, w_width, w_height):
         right_b = w_width
         left_b = 0
         slide_right = 1
-        print "Sliding right by: " + str(slide_right)
         while slide_right != 0:
             results.append(img[top_b:bot_b, left_b:right_b])
             slide_right = min([width - right_b, w_width])
@@ -60,7 +57,6 @@ def sliding_window(img, w_width, w_height):
             print "Sliding right by: " + str(slide_right)
 
         slide_down = min([height - bot_b, w_height])
-        print "Sliding down by: " + str(slide_down)
         top_b = top_b + slide_down
         bot_b = bot_b + slide_down
 

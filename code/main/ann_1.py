@@ -15,9 +15,7 @@
 
 import tensorflow as tf
 from imgpreproc import reading
-from imgpreproc import resizing
 from PIL import Image
-import numpy as np
 print("Tensorflow version " + tf.__version__)
 tf.set_random_seed(0)
 
@@ -40,10 +38,10 @@ X = tf.placeholder(tf.float32, [None, 30, 30, 1])
 Y_ = tf.placeholder(tf.float32, [None, 3])
 
 # five layers and their number of neurons (tha last layer has 10 softmax neurons)
-L = 200
-M = 100
-N = 60
-O = 30
+L = 600
+M = 300
+N = 100
+O = 50
 # Weights initialised with small random values between -0.2 and +0.2
 # When using RELUs, make sure biases are initialised with small *positive* values for example 0.1 = tf.ones([K])/10
 W1 = tf.Variable(tf.truncated_normal([900, L], stddev=0.1))  # 784 = 28 * 28
@@ -84,9 +82,6 @@ train_step = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
 init = tf.global_variables_initializer()
 saver = tf.train.Saver()
 sess = tf.InteractiveSession()
-writer = tf.summary.FileWriter("./logs/nn_logs")
-merged = tf.summary.merge_all()
-
 sess.run(init)
 
 # You can call this function in a loop to train the model, 100 images at a time
@@ -99,10 +94,6 @@ for i in range(1000):
     sess.run(train_step, {X: batch_X, Y_: batch_Y})
     a, c = sess.run([accuracy, cross_entropy], feed_dict=train_data)
     print "Accuracy: " + str(a)
-    # tf.scalar_summary("accuracy", a)
-    # writer = tf.train.SummaryWriter("./logs/nn_logs", sess.graph)
-    writer.add_graph(sess.graph)
-    tf.summary.scalar('accuracy', a)
 
     test_data = {X: batch_X[100:], Y_: batch_Y[100:]}
     a, c = sess.run([accuracy, cross_entropy], feed_dict=test_data)
@@ -111,20 +102,17 @@ for i in range(1000):
 
 save_path = saver.save(sess, "./my_model_final.ckpt")
 
-batch_X, images = reading.get_test_data()
-
+batch_X = reading.get_test_data()
 
 print batch_X.shape
 class_step = Y.eval(feed_dict={X: batch_X})
-
 for i, r in enumerate(class_step):
-    print "Saving: " + str(i)
     if r.argmax() == 0:
-        Image.fromarray(images[i]).save("/home/sari/data/auto/whole/%d.tiff"%i)
+        Image.fromarray(batch_X[i].reshape((30, 30))).save("/home/sari/data/auto/whole/%d.tiff"%i)
     if r.argmax() == 1:
-        Image.fromarray(images[i]).save("/home/sari/data/auto/noise/%d.tiff"%i)
+        Image.fromarray(batch_X[i].reshape((30, 30))).save("/home/sari/data/auto/noise/%d.tiff"%i)
     if r.argmax() == 2:
-        Image.fromarray(images[i]).save("/home/sari/data/auto/clumps/%d.tiff"%i)
+        Image.fromarray(batch_X[i].reshape((30, 30))).save("/home/sari/data/auto/clumps/%d.tiff"%i)
 
 print class_step
 y_pred = sess.run(class_step)

@@ -2,31 +2,57 @@ import imgpreproc.resizing as resizing
 import imgpreproc.reading as reading
 import numpy as np
 from PIL import Image
+from mltools import svmclassifier
 
+
+def something():
+    svm_cls = svmclassifier.SVMClassifier()
+    count = 0.0
+    for i in range(400, 500):
+        if svm_cls.ls[i] == svm_cls.clf.predict(svm_cls.resh[i].reshape(1, -1))[0]:
+            count = count + 1
+        else:
+            print "Wrong!!!!!!"
+        print count / (i - 399)
+
+
+def predict_svm():
+    svm_clf = svmclassifier.SVMClassifier()
+    data, images = reading.get_test_data()
+    data = data.reshape((data.shape[0], 30, 30))
+    print "SHAPE OF DATA: " + str(data.shape)
+    print "SHAPE OF DATA: " + str(data[0].reshape(1, -1).shape)
+    for i, d in enumerate(data):
+        # print "Saving: " + str(i)
+        cls = svm_clf.predict(d.reshape(1, -1))
+        if cls == 0:
+            Image.fromarray(images[i]).save("/home/sari/data/svm/whole/%d.tiff" % i)
+        if cls == 1:
+            Image.fromarray(images[i]).save("/home/sari/data/svm/noise/%d.tiff" % i)
+        if cls == 2:
+            Image.fromarray(images[i]).save("/home/sari/data/svm/clumps/%d.tiff" % i)
 
 def main():
     """
     images = reading.read_from_server(url_dir="Cellprofiler%20workshop/Bob/FN1/")
     for i in images:
         Image.fromarray(i).show()
-    """
     # images = reading.read_local("/home/sari/Desktop/sk_cp_output")
-    images = reading.read_local("/home/sari/Desktop/sk_cp_output")
+    images = reading.read_local("/home/sari/Desktop/data")
     img = images[0]
-    Image.fromarray(resizing.resize(img, 150, 150)).show()
-    resized_img = resizing.resize2(img, 10, 10)
+    resized_img = resizing.resize2(img, 3000, 3000)
     print type(resized_img)
     # arr = np.array([[11, 12, 13, 14, 15, 16, 17], [21, 22, 23, 24, 25, 26, 27], [31, 32, 33, 34, 35, 36, 37]])
     # resized_arr = resizing.sliding_window(arr, 3, 3)
 
     print "This is the number of results" + str(len(resized_img))
     if type(resized_img) == np.ndarray:
-        Image.fromarray(resizing.resize(resized_img, 150, 150)).show()
+        Image.fromarray(resized_img).show()
     else:
         for i in resized_img:
-            Image.fromarray(resizing.resize(i, 100, 100)).show()
+            Image.fromarray(i).show()
 
-
+    """
     """
     resized_img = resizing.resize(img, 100, 100, Image.NEAREST)
     resized_img1 = resizing.resize(img, 100, 100, Image.BILINEAR)
@@ -42,6 +68,9 @@ def main():
     Image.fromarray(resized_img3).show()
     Image.fromarray(resized_img3).save("/home/sari/Desktop/lanc.tiff")
     """
+    predict_svm()
+    # something()
+
 
 if __name__ == '__main__':
     main()
