@@ -9,6 +9,7 @@ from imgpreproc import resizing
 import sys
 import cStringIO
 import os
+from sklearn.cross_validation import train_test_split
 
 LABELS_TF = 0
 LABELS_NORMAL = 1
@@ -70,11 +71,13 @@ def get_data(labels_format=LABELS_NORMAL):
     imgs_whole = read_local("/home/sari/data/sorted/whole")
     imgs_noise = read_local("/home/sari/data/sorted/noise")
     imgs_clumps = read_local("/home/sari/data/sorted/clumps")
+    imgs_spread = read_local("/home/sari/data/sorted/spread")
 
     # Move resizing method from here
-    res_whole = np.array([resizing.resize(img, 30, 30, mode=Image.BICUBIC) for img in imgs_whole])
-    res_noise = np.array([resizing.resize(img, 30, 30, mode=Image.BICUBIC) for img in imgs_noise])
-    res_clumps = np.array([resizing.resize(img, 30, 30, mode=Image.BICUBIC) for img in imgs_clumps])
+    res_whole = np.array([resizing.resize(img, 30, 30, mode=Image.NEAREST) for img in imgs_whole])
+    res_noise = np.array([resizing.resize(img, 30, 30, mode=Image.NEAREST) for img in imgs_noise])
+    res_clumps = np.array([resizing.resize(img, 30, 30, mode=Image.NEAREST) for img in imgs_clumps])
+    res_spread = np.array([resizing.resize(img, 30, 30, mode=Image.NEAREST) for img in imgs_spread])
 
     labels = []
     if labels_format == LABELS_TF:
@@ -91,9 +94,12 @@ def get_data(labels_format=LABELS_NORMAL):
             labels.append(1)
         for i in res_clumps:
             labels.append(2)
+        for i in res_spread:
+            labels.append(3)
 
     res_images = np.append(res_whole, res_noise, axis=0)
     res_images = np.append(res_images, res_clumps, axis=0)
+    res_images = np.append(res_images, res_spread, axis=0)
     print("Shape in reading"+str(res_images.shape))
     if labels_format == LABELS_TF:
         return res_images.reshape((res_images.shape[0], 30, 30, 1)), np.array(labels)
@@ -101,14 +107,14 @@ def get_data(labels_format=LABELS_NORMAL):
         return res_images, labels
 
 
-def get_data_tt(p):
-    data, labels = get_data()
-    training_num = int(len(data) * p)
-    return data[:training_num], labels[:training_num], data[training_num:], labels[training_num:]
+def get_data_tt(p, labels_format=LABELS_NORMAL):
+    data, labels = get_data(labels_format)
+    print(data.shape)
+    return train_test_split(data, labels, test_size=p, random_state=42)
 
 
 def get_test_data():
-    images = read_local("/home/sari/data/CP_cropped_0")
+    images = read_local("/home/sari/data/CP_cropped_1")
     res_images = np.array([np.array(Image.fromarray(img).resize((30, 30), Image.BICUBIC)) for img in images])
     print(res_images.shape)
 
@@ -119,6 +125,10 @@ def get_data_sample(count):
     data, labels = get_data()
     idx = np.random.choice(np.arange(len(data)), count, replace=False)
     return data[idx], labels[idx]
+
+def get_sample(count, data, labels):
+    idx = np.random.choice(np.arange(len(data)), count, replace=False)
+    return
 
 
 def get_all_data():

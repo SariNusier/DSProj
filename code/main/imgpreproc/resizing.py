@@ -20,11 +20,11 @@ def resize2(img, width, height):
     right = 0
 
     if orig_width < width:
-        left = (width - orig_width)/2
+        left = (width - orig_width) / 2
         right = (width - orig_width) - left
 
     if orig_height < height:
-        top = (height - orig_height)/2
+        top = (height - orig_height) / 2
         bot = (height - orig_height) - top
 
     padded_img = np.lib.pad(img, ((top, bot), (left, right)), 'constant', constant_values=0)
@@ -61,7 +61,6 @@ def sliding_window(img, w_width, w_height):
         bot_b = bot_b + slide_down
 
     return results
-
 
 
 def read_image(path):

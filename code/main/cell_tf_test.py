@@ -92,7 +92,9 @@ sess.run(init)
 # You can call this function in a loop to train the model, 100 images at a time
 for i in range(1000):
     # training on batches of 100 images with 100 labels
-    batch_X, batch_Y = reading.get_data()
+    batch_X, batch_Y = reading.get_data(labels_format=reading.LABELS_TF)
+    print "batch_X: " + str(batch_X.shape)
+    print "batch_Y: " + str(batch_X.shape)
     train_data = {X: batch_X, Y_: batch_Y}
 
     # the backpropagation training step

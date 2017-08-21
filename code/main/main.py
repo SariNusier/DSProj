@@ -3,21 +3,24 @@ import imgpreproc.reading as reading
 import numpy as np
 from PIL import Image
 from mltools import svmclassifier
+import matplotlib.pyplot as plt
 
 
-def something():
+def svm_classification():
     svm_cls = svmclassifier.SVMClassifier()
-    count = 0.0
-    for i in range(400, 500):
-        if svm_cls.ls[i] == svm_cls.clf.predict(svm_cls.resh[i].reshape(1, -1))[0]:
-            count = count + 1
-        else:
-            print "Wrong!!!!!!"
-        print count / (i - 399)
+    svm_cls
 
 
 def predict_svm():
-    svm_clf = svmclassifier.SVMClassifier()
+    svm_clf_poly = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True)
+    svm_clf_rbf = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='rbf')
+    svm_clf_linear = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='linear')
+    svm_clf_sigmoid = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='sigmoid')
+    print svm_clf_rbf.results[-1]
+    print svm_clf_sigmoid.results[-1]
+    print svm_clf_linear.results[-1]
+    print svm_clf_poly.results[-1]
+    """
     data, images = reading.get_test_data()
     data = data.reshape((data.shape[0], 30, 30))
     print "SHAPE OF DATA: " + str(data.shape)
@@ -31,6 +34,10 @@ def predict_svm():
             Image.fromarray(images[i]).save("/home/sari/data/svm/noise/%d.tiff" % i)
         if cls == 2:
             Image.fromarray(images[i]).save("/home/sari/data/svm/clumps/%d.tiff" % i)
+        if cls == 3:
+            Image.fromarray(images[i]).save("/home/sari/data/svm/spread/%d.tiff" % i)
+    """
+
 
 def main():
     """
