@@ -13,13 +13,24 @@ def svm_classification():
 
 def predict_svm():
     svm_clf_poly = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True)
-    svm_clf_rbf = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='rbf')
+    svm_clf_rbf = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='rbf', scaling=True)
     svm_clf_linear = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='linear')
     svm_clf_sigmoid = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='sigmoid')
+    svm_clf_poly_padl = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, resize_method=resizing.RESIZE_BILINEAR)
+    svm_clf_poly_padc = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, resize_method=resizing.RESIZE_BICUBIC)
+    svm_clf_poly_pad = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, resize_method=resizing.RESIZE_PW)
     print svm_clf_rbf.results[-1]
     print svm_clf_sigmoid.results[-1]
     print svm_clf_linear.results[-1]
     print svm_clf_poly.results[-1]
+    print svm_clf_poly_padl.results[-1]
+    print svm_clf_poly_padc.results[-1]
+    print svm_clf_poly_pad.results[-1]
+    """
+    svm_clf_rbf = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='rbf', scaling=True)
+    svm_clf_linear = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='linear')
+    svm_clf_sigmoid = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='sigmoid')
+    """
     """
     data, images = reading.get_test_data()
     data = data.reshape((data.shape[0], 30, 30))
@@ -38,6 +49,11 @@ def predict_svm():
             Image.fromarray(images[i]).save("/home/sari/data/svm/spread/%d.tiff" % i)
     """
 
+def resizing_t(mode):
+    img, _ = reading.get_data(resize_method=mode)
+    img = img[0]
+    print img
+    print img.shape
 
 def main():
     """
@@ -75,9 +91,28 @@ def main():
     Image.fromarray(resized_img3).show()
     Image.fromarray(resized_img3).save("/home/sari/Desktop/lanc.tiff")
     """
-    predict_svm()
     # something()
+    """
+    images_raw, labels = reading.get_data()
+    for idx, img in enumerate(images_raw):
+        cls = labels[idx]
+        if cls == 0:
+            Image.fromarray(img).save("/home/sari/data/testtf/whole/%d.jpg" % idx)
+        if cls == 1:
+            Image.fromarray(img).save("/home/sari/data/testtf/noise/%d.jpg" % idx)
+        if cls == 2:
+            Image.fromarray(img).save("/home/sari/data/testtf/clumps/%d.jpg" % idx)
+        if cls == 3:
+            Image.fromarray(img).save("/home/sari/data/testtf/spread/%d.jpg" % idx)
+    # predict_svm()
+    images = reading.read_local("/home/sari/data/CP_cropped_0")
+    for i, img in enumerate(images):
+        Image.fromarray(img).save("/home/sari/data/inception0/%d.jpg" % i)
+    print len(images)
+    """
+    from mltools import testinception
 
+    testinception.run()
 
 if __name__ == '__main__':
     main()

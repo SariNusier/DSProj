@@ -5,14 +5,38 @@ from skimage import transform
 from PIL import Image
 import numpy as np
 
+RESIZE_NONE = "Don't resize"
+RESIZE_PW = "Padding and Sliding Window"
+RESIZE_NEAREST = Image.NEAREST
+RESIZE_BILINEAR = Image.BILINEAR
+RESIZE_BICUBIC = Image.BICUBIC
 
-def resize(img, width, height, mode=0):
-    resized_img = Image.fromarray(img)
-    resized_img = resized_img.resize((width, height), mode)
-    return np.array(resized_img.resize((width, height)))
+
+def resize(images, width, height, mode=RESIZE_NONE):
+    if mode == RESIZE_NONE:
+        return images
+
+    if mode == RESIZE_PW:
+        results = []
+        for img in images:
+            resized_img = resize_pw(img, width, height)
+            if len(resized_img) == 1:
+                results.append(resized_img[0])
+            else:
+                for r in resized_img:
+                    results.append(r)
+        return np.array(results)
+
+    results = []
+    for img in images:
+        resized_img = Image.fromarray(img)
+        resized_img = resized_img.resize((width, height), mode)
+        results.append(np.array(resized_img))
+
+    return np.array(results)
 
 
-def resize2(img, width, height):
+def resize_pw(img, width, height):
     orig_height, orig_width = img.shape
     top = 0
     bot = 0
@@ -28,11 +52,9 @@ def resize2(img, width, height):
         bot = (height - orig_height) - top
 
     padded_img = np.lib.pad(img, ((top, bot), (left, right)), 'constant', constant_values=0)
-
     if padded_img.shape[0] > height or padded_img.shape[1] > width:
-        # return sliding_window(padded_img, width, height)
-        return np.array(Image.fromarray(padded_img).resize((28, 28)))
-
+        return sliding_window(padded_img, width, height)
+    padded_img = [padded_img]
     return padded_img
 
 
@@ -54,7 +76,6 @@ def sliding_window(img, w_width, w_height):
             slide_right = min([width - right_b, w_width])
             left_b = left_b + slide_right
             right_b = right_b + slide_right
-            print "Sliding right by: " + str(slide_right)
 
         slide_down = min([height - bot_b, w_height])
         top_b = top_b + slide_down

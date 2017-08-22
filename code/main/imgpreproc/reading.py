@@ -14,7 +14,9 @@ from sklearn.cross_validation import train_test_split
 LABELS_TF = 0
 LABELS_NORMAL = 1
 
-class MyHTMLParser(HTMLParser):
+
+
+class ImagesHTMLParser(HTMLParser):
     def __init__(self):
         HTMLParser.__init__(self)
         self.prev_tag = ""
@@ -35,7 +37,7 @@ def read_from_server(url_base="http://10.200.102.18/", url_dir="G179-dataset/"):
 
     all_images = urllib2.urlopen(url_base + url_dir).read()
 
-    parser = MyHTMLParser()
+    parser = ImagesHTMLParser()
     parser.feed(all_images)
     data = parser.data
     imgs = []
@@ -67,26 +69,33 @@ def read_local(path):
     return imgs
 
 
-def get_data(labels_format=LABELS_NORMAL):
+def get_data(labels_format=LABELS_NORMAL, resize_method=resizing.RESIZE_NONE):
     imgs_whole = read_local("/home/sari/data/sorted/whole")
     imgs_noise = read_local("/home/sari/data/sorted/noise")
     imgs_clumps = read_local("/home/sari/data/sorted/clumps")
     imgs_spread = read_local("/home/sari/data/sorted/spread")
 
     # Move resizing method from here
-    res_whole = np.array([resizing.resize(img, 30, 30, mode=Image.NEAREST) for img in imgs_whole])
-    res_noise = np.array([resizing.resize(img, 30, 30, mode=Image.NEAREST) for img in imgs_noise])
-    res_clumps = np.array([resizing.resize(img, 30, 30, mode=Image.NEAREST) for img in imgs_clumps])
-    res_spread = np.array([resizing.resize(img, 30, 30, mode=Image.NEAREST) for img in imgs_spread])
-
+    """
+    res_whole = np.array([resizing.resize(img, 30, 30, mode=resize_method) for img in imgs_whole])
+    res_noise = np.array([resizing.resize(img, 30, 30, mode=resize_method) for img in imgs_noise])
+    res_clumps = np.array([resizing.resize(img, 30, 30, mode=resize_method) for img in imgs_clumps])
+    res_spread = np.array([resizing.resize(img, 30, 30, mode=resize_method) for img in imgs_spread])
+    """
+    res_whole = resizing.resize(imgs_whole, 28, 28, mode=resize_method)
+    res_noise = resizing.resize(imgs_noise, 28, 28, mode=resize_method)
+    res_clumps = resizing.resize(imgs_clumps, 28, 28, mode=resize_method)
+    res_spread = resizing.resize(imgs_spread, 28, 28, mode=resize_method)
     labels = []
     if labels_format == LABELS_TF:
         for i in res_whole:
-            labels.append([1, 0, 0])
+            labels.append([1, 0, 0, 0])
         for i in res_noise:
-            labels.append([0, 1, 0])
+            labels.append([0, 1, 0, 0])
         for i in res_clumps:
-            labels.append([0, 0, 1])
+            labels.append([0, 0, 1, 0])
+        for i in res_spread:
+            labels.append([0, 0, 0, 1])
     elif labels_format == LABELS_NORMAL:
         for i in res_whole:
             labels.append(0)
@@ -102,15 +111,16 @@ def get_data(labels_format=LABELS_NORMAL):
     res_images = np.append(res_images, res_spread, axis=0)
     print("Shape in reading"+str(res_images.shape))
     if labels_format == LABELS_TF:
-        return res_images.reshape((res_images.shape[0], 30, 30, 1)), np.array(labels)
+        return res_images.reshape((res_images.shape[0], 28, 28, 1)), np.array(labels)
+        # return np.reshape(res_images, [-1, 784]), np.array(labels)
     if labels_format == LABELS_NORMAL:
         return res_images, labels
 
 
-def get_data_tt(p, labels_format=LABELS_NORMAL):
-    data, labels = get_data(labels_format)
+def get_data_tt(test_size, labels_format=LABELS_NORMAL, resize_method=resizing.RESIZE_NONE):
+    data, labels = get_data(labels_format, resize_method)
     print(data.shape)
-    return train_test_split(data, labels, test_size=p, random_state=42)
+    return train_test_split(data, labels, test_size=test_size, random_state=42)
 
 
 def get_test_data():
@@ -128,7 +138,7 @@ def get_data_sample(count):
 
 def get_sample(count, data, labels):
     idx = np.random.choice(np.arange(len(data)), count, replace=False)
-    return
+    return data[idx], labels[idx]
 
 
 def get_all_data():
