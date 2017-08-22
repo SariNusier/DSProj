@@ -13,6 +13,7 @@ from sklearn.cross_validation import train_test_split
 
 LABELS_TF = 0
 LABELS_NORMAL = 1
+LABELS_DNN = 2
 
 
 
@@ -87,7 +88,7 @@ def get_data(labels_format=LABELS_NORMAL, resize_method=resizing.RESIZE_NONE):
     res_clumps = resizing.resize(imgs_clumps, 28, 28, mode=resize_method)
     res_spread = resizing.resize(imgs_spread, 28, 28, mode=resize_method)
     labels = []
-    if labels_format == LABELS_TF:
+    if labels_format == LABELS_TF or labels_format == LABELS_DNN:
         for i in res_whole:
             labels.append([1, 0, 0, 0])
         for i in res_noise:
@@ -109,26 +110,25 @@ def get_data(labels_format=LABELS_NORMAL, resize_method=resizing.RESIZE_NONE):
     res_images = np.append(res_whole, res_noise, axis=0)
     res_images = np.append(res_images, res_clumps, axis=0)
     res_images = np.append(res_images, res_spread, axis=0)
-    print("Shape in reading"+str(res_images.shape))
     if labels_format == LABELS_TF:
         return res_images.reshape((res_images.shape[0], 28, 28, 1)), np.array(labels)
         # return np.reshape(res_images, [-1, 784]), np.array(labels)
+    if labels_format == LABELS_DNN:
+        return np.reshape(res_images, [-1, 784]), np.array(labels)
     if labels_format == LABELS_NORMAL:
         return res_images, labels
 
 
 def get_data_tt(test_size, labels_format=LABELS_NORMAL, resize_method=resizing.RESIZE_NONE):
     data, labels = get_data(labels_format, resize_method)
-    print(data.shape)
     return train_test_split(data, labels, test_size=test_size, random_state=42)
 
 
-def get_test_data():
-    images = read_local("/home/sari/data/CP_cropped_1")
-    res_images = np.array([np.array(Image.fromarray(img).resize((30, 30), Image.BICUBIC)) for img in images])
-    print(res_images.shape)
+def get_test_data(resize_method):
+    images = read_local("/home/sari/data/CP_cropped_0")
+    resized = resizing.resize(images, 28, 28, mode=resize_method)
+    return resized.reshape((resized.shape[0], 28, 28, 1)), images
 
-    return res_images.reshape((res_images.shape[0], 30, 30, 1)), images
 
 
 def get_data_sample(count):

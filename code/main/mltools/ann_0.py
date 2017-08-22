@@ -1,15 +1,9 @@
 import tensorflow as tf
 from imgpreproc import reading
 from imgpreproc import resizing
-from tensorflow.examples.tutorials.mnist import input_data
-
-mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
-trX, trY, teX, teY = mnist.train.images, mnist.train.labels, mnist.test.images, mnist.test.labels
 
 l1 = 200
 l2 = 100
-l3 = 60
-l4 = 30
 
 
 def init_weights(shape, name):
@@ -17,7 +11,7 @@ def init_weights(shape, name):
 
 
 def init_biases(shape, name):
-    return tf.Variable(tf.zeros([shape]))
+    return tf.Variable(tf.ones([shape]) / 10)
 
 
 def model(X, w_h, w_h2, w_o, p_keep_input, p_keep_hidden, b1, b2, b3):
@@ -35,7 +29,7 @@ def model(X, w_h, w_h2, w_o, p_keep_input, p_keep_hidden, b1, b2, b3):
 
 
 train_X, test_X, train_Y, test_Y = reading.get_data_tt(test_size=0.2, resize_method=resizing.RESIZE_NEAREST,
-                                                       labels_format=reading.LABELS_TF)
+                                                       labels_format=reading.LABELS_DNN)
 
 
 print "TRAIN DATA SHAPE: "+ str(train_X.shape)
@@ -62,7 +56,7 @@ py_x = model(X, w_h, w_h2, w_o, p_keep_input, p_keep_hidden, b1, b2, b3)
 with tf.name_scope("cost"):
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=py_x, labels=Y))
     # train_op = tf.train.RMSPropOptimizer(0.002, 0.9).minimize(cost)
-    train_op = tf.train.AdamOptimizer(0.0002).minimize(cost)
+    train_op = tf.train.GradientDescentOptimizer(0.0002).minimize(cost)
 
     tf.summary.scalar("cost", cost)
 
@@ -74,7 +68,7 @@ with tf.name_scope("accuracy"):
 with tf.Session() as sess:
     writer = tf.summary.FileWriter("./logs/nn_logs", sess.graph)
     merged = tf.summary.merge_all()
-    tf.initialize_all_variables().run()
+    tf.global_variables_initializer().run()
 
     for i in range(100000):
 
