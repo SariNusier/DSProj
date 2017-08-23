@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import numpy as np
+import cPickle as pickle
 from imgpreproc import reading
 from imgpreproc import resizing
 from sklearn import metrics
@@ -54,15 +55,31 @@ def test_svm():
         if a == resizing.RESIZE_PW:
             l = "Pad and Slide"
 
-        plt.plot([i / 10.0 for i in range(1, 6)], acc[a], label=l)
+        # plt.plot([i / 10.0 for i in range(1, 6)], acc[a], label=l)
+
+
+def test_NN():
 
     # plt.title("Linear Kernel - Accuracy based on training set size and Resizing method")
+    info = pickle.load(open("results/RGDDOBL2.p", "rb"))
+
+    plt.plot(range(len(info['accuracy'])), info['accuracy'])
+    plt.show()
+    plt.close()
+    print(info['cross_entropy'])
+    plt.plot(range(len(info['cross_entropy'])), info['cross_entropy'])
+    plt.show()
+
+    """
     plt.xlabel("Training set size")
     plt.ylabel("Accuracy")
     plt.legend()
     plt.savefig('%sAccTsRs.png' % k)
     plt.close()
-
 for k in svmclassifier.KERNEL_LIST:
     WANTED_KERNEL = k
+    print(k)
     test_svm()
+    """
+
+test_NN()

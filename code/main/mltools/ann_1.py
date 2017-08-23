@@ -1,11 +1,11 @@
 import tensorflow as tf
 from imgpreproc import reading
 from imgpreproc import resizing
+import cPickle as pickle
+from sklearn import metrics
 
 l1 = 200
 l2 = 100
-l3 = 60
-l4 = 30
 
 
 def init_weights(shape, name):
@@ -30,7 +30,7 @@ def model(X, w_h, w_h2, w_o, p_keep_input, p_keep_hidden, b1, b2, b3):
         return tf.matmul(h2, w_o) + b3
 
 
-train_X, test_X, train_Y, test_Y = reading.get_data_tt(test_size=0.2, resize_method=resizing.RESIZE_NEAREST,
+train_X, test_X, train_Y, test_Y = reading.get_data_tt(test_size=0.2, resize_method=resizing.RESIZE_BILINEAR,
                                                        labels_format=reading.LABELS_DNN)
 
 
@@ -72,17 +72,31 @@ with tf.Session() as sess:
     merged = tf.summary.merge_all()
     tf.initialize_all_variables().run()
 
+    crs_ent = []
+    accuracies = []
     for i in range(100000):
 
-        batch_X, batch_Y = reading.get_sample(100, train_X, train_Y)
-        sess.run(train_op, feed_dict={X: batch_X, Y: batch_Y,
-                                      p_keep_input: 1, p_keep_hidden: 0.75})
+        batch_X, batch_Y = reading.get_sample(200, train_X, train_Y)
+        cs, _ = sess.run([cost, train_op], feed_dict={X: batch_X, Y: batch_Y,
+                                      p_keep_input: 1, p_keep_hidden: 1.0})
         summary, acc = sess.run([merged, acc_op], feed_dict={X: test_X, Y: test_Y,
                                                              p_keep_input: 1.0, p_keep_hidden: 1.0})
         writer.add_summary(summary, i)
+        print cs
+        crs_ent.append(cs)
         print i, acc
+        accuracies.append(acc)
 
-print train_X.shape
-print test_X.shape
-print train_Y
-print test_Y
+    class_step = py_x.eval(feed_dict={X: test_X, p_keep_input: 1, p_keep_hidden: 1})
+    results = []
+    for r in class_step:
+        results.append(r.argmax())
+
+    print metrics.accuracy_score(results, reading.convert_labels(test_Y))
+    print metrics.accuracy_score(reading.convert_labels(test_Y), results)
+    print metrics.classification_report(reading.convert_labels(test_Y), results)
+    report = metrics.classification_report(reading.convert_labels(test_Y), results)
+    conf_mat = metrics.confusion_matrix(reading.convert_labels(test_Y), results)
+    to_return = {'accuracy': accuracies, 'cross_entropy': crs_ent, 'report': report, 'conf_mat': conf_mat}
+
+    pickle.dump(to_return, open("/home/sari/workspace/DSProj/code/main/results/SADBL2.p", "wb"))

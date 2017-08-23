@@ -14,7 +14,7 @@ KERNEL_DEFAULT = KERNEL_POLY
 
 
 class SVMClassifier:
-    def __init__(self, test_size=TEST_SIZE, kernel=KERNEL_DEFAULT, gamma='auto', C=100, probability=False,
+    def __init__(self, test_size=TEST_SIZE, kernel=KERNEL_DEFAULT, gamma='auto', C=500, probability=False,
                  test_mode=False, scaling=True, resize_method=resizing.RESIZE_NEAREST):
         self.test_size = test_size
         self.kernel = kernel
@@ -57,7 +57,7 @@ class SVMClassifier:
                 predictions.append(prediction)
 
 
-            self.accuracy = metrics.accuracy_score(predictions, self.test_Y)
+            self.accuracy = metrics.accuracy_score(self.test_Y, predictions)
             self.recall = metrics.recall_score(self.test_Y, predictions, average='macro')
             self.f1_score = metrics.f1_score(self.test_Y, predictions, average='weighted')
             self.summary = metrics.classification_report(self.test_Y, predictions)

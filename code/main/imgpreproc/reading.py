@@ -144,3 +144,10 @@ def get_sample(count, data, labels):
 def get_all_data():
     images = read_local("/home/sari/data/CP_cropped_0")
     return images
+
+def convert_labels(labels):
+    to_ret = []
+    for i in labels:
+        to_ret.append(i.argmax())
+
+    return to_ret
