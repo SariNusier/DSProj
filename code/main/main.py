@@ -3,6 +3,7 @@ import imgpreproc.reading as reading
 import numpy as np
 from PIL import Image
 from mltools import svmclassifier
+import cPickle as pickle
 import matplotlib.pyplot as plt
 
 
@@ -55,7 +56,11 @@ def resizing_t(mode):
     print img
     print img.shape
 
+
 def main():
+    relu_gd_do = pickle.load(open("results/RGDDOBL2.p"))
+    relu_gd = pickle.load(open("results/RGDDOBL2.p"))
+    print relu_gd_do['accuracy']
 
 
 if __name__ == '__main__':

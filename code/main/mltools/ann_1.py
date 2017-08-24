@@ -30,7 +30,7 @@ def model(X, w_h, w_h2, w_o, p_keep_input, p_keep_hidden, b1, b2, b3):
         return tf.matmul(h2, w_o) + b3
 
 
-train_X, test_X, train_Y, test_Y = reading.get_data_tt(test_size=0.2, resize_method=resizing.RESIZE_BILINEAR,
+train_X, test_X, train_Y, test_Y = reading.get_data_tt(test_size=0.2, resize_method=resizing.RESIZE_BICUBIC,
                                                        labels_format=reading.LABELS_DNN)
 
 
@@ -58,7 +58,7 @@ py_x = model(X, w_h, w_h2, w_o, p_keep_input, p_keep_hidden, b1, b2, b3)
 with tf.name_scope("cost"):
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=py_x, labels=Y))
     # train_op = tf.train.RMSPropOptimizer(0.002, 0.9).minimize(cost)
-    train_op = tf.train.AdamOptimizer(0.0002).minimize(cost)
+    train_op = tf.train.GradientDescentOptimizer(0.0002).minimize(cost)
 
     tf.summary.scalar("cost", cost)
 
@@ -78,7 +78,7 @@ with tf.Session() as sess:
 
         batch_X, batch_Y = reading.get_sample(200, train_X, train_Y)
         cs, _ = sess.run([cost, train_op], feed_dict={X: batch_X, Y: batch_Y,
-                                      p_keep_input: 1, p_keep_hidden: 1.0})
+                                      p_keep_input: 1, p_keep_hidden: 0.75})
         summary, acc = sess.run([merged, acc_op], feed_dict={X: test_X, Y: test_Y,
                                                              p_keep_input: 1.0, p_keep_hidden: 1.0})
         writer.add_summary(summary, i)
@@ -99,4 +99,4 @@ with tf.Session() as sess:
     conf_mat = metrics.confusion_matrix(reading.convert_labels(test_Y), results)
     to_return = {'accuracy': accuracies, 'cross_entropy': crs_ent, 'report': report, 'conf_mat': conf_mat}
 
-    pickle.dump(to_return, open("/home/sari/workspace/DSProj/code/main/results/SADBL2.p", "wb"))
+    pickle.dump(to_return, open("/home/sari/workspace/DSProj/code/main/results/test2.p", "wb"))

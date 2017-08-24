@@ -7,6 +7,7 @@ from imgpreproc import resizing
 from sklearn import metrics
 from mltools import svmclassifier
 import matplotlib.pyplot as plt
+from scipy.interpolate import spline
 
 WANTED_KERNEL = svmclassifier.KERNEL_LINEAR
 
@@ -61,14 +62,18 @@ def test_svm():
 def test_NN():
 
     # plt.title("Linear Kernel - Accuracy based on training set size and Resizing method")
-    info = pickle.load(open("results/RGDDOBL2.p", "rb"))
+    model_1 = pickle.load(open("results/CNN6502BC.p", "rb"))
+    accuracy = model_1['accuracy']
+    print(np.max(accuracy))
+    print("Iterations:", len(accuracy))
+    accuracy = accuracy[-1]
+    c_e = model_1['cross_entropy']
+    summary = model_1['report']
+    c_m = model_1['conf_mat']
+    print("Accuracy", accuracy)
+    print(summary)
+    print(c_m)
 
-    plt.plot(range(len(info['accuracy'])), info['accuracy'])
-    plt.show()
-    plt.close()
-    print(info['cross_entropy'])
-    plt.plot(range(len(info['cross_entropy'])), info['cross_entropy'])
-    plt.show()
 
     """
     plt.xlabel("Training set size")

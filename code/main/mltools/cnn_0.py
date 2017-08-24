@@ -4,6 +4,8 @@ from imgpreproc import reading
 from imgpreproc import resizing
 import matplotlib.pyplot as plt
 import math
+from sklearn import metrics
+import cPickle as pickle
 
 l1 = 4
 l2 = 8
@@ -40,7 +42,7 @@ def model(X, w_c1, w_c2, w_c3, w_f4, w_f5, p_keep_input, p_keep_hidden, b1, b2, 
         return tf.matmul(YY4, w_f5) + b5
 
 
-train_X, test_X, train_Y, test_Y = reading.get_data_tt(test_size=0.1, resize_method=resizing.RESIZE_PW,
+train_X, test_X, train_Y, test_Y = reading.get_data_tt(test_size=0.2, resize_method=resizing.RESIZE_BILINEAR,
                                                        labels_format=reading.LABELS_TF)
 
 print train_X.shape
@@ -90,15 +92,16 @@ with tf.Session() as sess:
     writer = tf.summary.FileWriter("./logs/nn_logs", sess.graph)
     merged = tf.summary.merge_all()
     tf.initialize_all_variables().run()
-
+    crs_ent = []
+    accuracies = []
     for i in range(50000):
         max_learning_rate = 0.003
         min_learning_rate = 0.0001
         decay_speed = 2000.0
         learning_rate = min_learning_rate + (max_learning_rate - min_learning_rate) * math.exp(-i / decay_speed)
-        batch_X, batch_Y = reading.get_sample(300, train_X, train_Y)
+        batch_X, batch_Y = reading.get_sample(100, train_X, train_Y)
         acc_train, c_train, _= sess.run([acc_op,cost,train_op], feed_dict={X: batch_X, Y: batch_Y,
-                                      p_keep_input: 1, p_keep_hidden: 1, l_rate: learning_rate})
+                                      p_keep_input: 1, p_keep_hidden: 0.75, l_rate: learning_rate})
         summary, acc, c = sess.run([merged, acc_op, cost], feed_dict={X: test_X, Y: test_Y,
                                                              p_keep_input: 1.0, p_keep_hidden: 1})
         writer.add_summary(summary, i)
@@ -109,37 +112,22 @@ with tf.Session() as sess:
 
         print i, acc_train, c_train
         print acc, c
+        accuracies.append(acc)
+        crs_ent.append(c_train)
 
-    batch_x, images = reading.get_test_data(resize_method=resizing.RESIZE_PW)
-    # Y_eval = tf.nn.softmax(Y)
-    class_step = py_x.eval(feed_dict={X: batch_x, p_keep_hidden: 1.0, p_keep_input: 1.0})
-
-    for i, r in enumerate(class_step):
-        print "Saving: " + str(i)
-        if r.argmax() == 0:
-            Image.fromarray(images[i]).save("/home/sari/data/auto/whole/%d.tiff"%i)
-        if r.argmax() == 1:
-            Image.fromarray(images[i]).save("/home/sari/data/auto/noise/%d.tiff"%i)
-        if r.argmax() == 2:
-            Image.fromarray(images[i]).save("/home/sari/data/auto/clumps/%d.tiff"%i)
-        if r.argmax() == 3:
-            Image.fromarray(images[i]).save("/home/sari/data/auto/spread/%d.tiff"%i)
-
-
+    class_step = py_x.eval(feed_dict={X: test_X, p_keep_hidden: 1.0, p_keep_input: 1.0})
+    results = []
     print class_step
-    y_pred = sess.run(class_step)
+    for r in class_step:
+        print r
+        results.append(r.argmax())
+    print metrics.accuracy_score(results, reading.convert_labels(test_Y))
+    print metrics.accuracy_score(reading.convert_labels(test_Y), results)
+    print metrics.classification_report(reading.convert_labels(test_Y), results)
+    report = metrics.classification_report(reading.convert_labels(test_Y), results)
+    conf_mat = metrics.confusion_matrix(reading.convert_labels(test_Y), results)
+    to_return = {'accuracy': accuracies, 'cross_entropy': crs_ent, 'report': report, 'conf_mat': conf_mat}
 
-aa, = plt.plot(accuracy, label='Te_a')
-aaa, = plt.plot(accuracy_train, label='Tr_a')
-plt.legend([aa, aaa])
-plt.show()
-cc, = plt.plot(costs, label='Te_c')
-ccc, = plt.plot(costs_train, label='Tr_c')
-plt.legend([cc, ccc])
-plt.show()
-print train_X.shape
-print test_X.shape
-print train_Y
-print test_Y
+    pickle.dump(to_return, open("/home/sari/workspace/DSProj/code/main/results/CNN6502BC.p", "wb"))
 
 
