@@ -1,3 +1,10 @@
+"""
+The code below was made with the help of the tutorials by Martin Gorner on MNIST classifier.
+For more information please go to
+https://github.com/martin-gorner/tensorflow-mnist-tutorial/
+"""
+
+
 import tensorflow as tf
 from PIL import Image
 from imgpreproc import reading

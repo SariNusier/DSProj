@@ -2,12 +2,8 @@ from __future__ import print_function
 
 import numpy as np
 import cPickle as pickle
-from imgpreproc import reading
 from imgpreproc import resizing
-from sklearn import metrics
 from mltools import svmclassifier
-import matplotlib.pyplot as plt
-from scipy.interpolate import spline
 
 WANTED_KERNEL = svmclassifier.KERNEL_LINEAR
 
@@ -60,7 +56,6 @@ def test_svm():
 
 
 def test_NN():
-
     # plt.title("Linear Kernel - Accuracy based on training set size and Resizing method")
     model_1 = pickle.load(open("results/CNN6502BC.p", "rb"))
     accuracy = model_1['accuracy']
@@ -73,18 +68,5 @@ def test_NN():
     print("Accuracy", accuracy)
     print(summary)
     print(c_m)
-
-
-    """
-    plt.xlabel("Training set size")
-    plt.ylabel("Accuracy")
-    plt.legend()
-    plt.savefig('%sAccTsRs.png' % k)
-    plt.close()
-for k in svmclassifier.KERNEL_LIST:
-    WANTED_KERNEL = k
-    print(k)
-    test_svm()
-    """
 
 test_NN()

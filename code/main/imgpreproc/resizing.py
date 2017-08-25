@@ -1,7 +1,5 @@
 """Helper module for resizing images"""
 
-from skimage import io
-from skimage import transform
 from PIL import Image
 import numpy as np
 
@@ -84,11 +82,3 @@ def sliding_window(img, w_width, w_height):
         bot_b = bot_b + slide_down
 
     return results
-
-
-def read_image(path):
-    return io.imread(path)
-
-
-def print_image(img):
-    io.imshow(img)

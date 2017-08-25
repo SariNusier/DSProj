@@ -3,30 +3,33 @@ import imgpreproc.reading as reading
 import numpy as np
 from PIL import Image
 from mltools import svmclassifier
+from mltools import testinception
 import cPickle as pickle
 import matplotlib.pyplot as plt
 
 
 def svm_classification():
     svm_cls = svmclassifier.SVMClassifier()
-    svm_cls
 
 
 def predict_svm():
+    print "HELLO"
     svm_clf_poly = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True)
     svm_clf_rbf = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='rbf', scaling=True)
     svm_clf_linear = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='linear')
     svm_clf_sigmoid = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='sigmoid')
-    svm_clf_poly_padl = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, resize_method=resizing.RESIZE_BILINEAR)
-    svm_clf_poly_padc = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, resize_method=resizing.RESIZE_BICUBIC)
+    svm_clf_poly_padl = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True,
+                                                    resize_method=resizing.RESIZE_BILINEAR)
+    svm_clf_poly_padc = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True,
+                                                    resize_method=resizing.RESIZE_BICUBIC)
     svm_clf_poly_pad = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, resize_method=resizing.RESIZE_PW)
-    print svm_clf_rbf.results[-1]
-    print svm_clf_sigmoid.results[-1]
-    print svm_clf_linear.results[-1]
-    print svm_clf_poly.results[-1]
-    print svm_clf_poly_padl.results[-1]
-    print svm_clf_poly_padc.results[-1]
-    print svm_clf_poly_pad.results[-1]
+    print svm_clf_rbf.accuracy
+    print svm_clf_sigmoid.accuracy
+    print svm_clf_linear.accuracy
+    print svm_clf_poly.accuracy
+    print svm_clf_poly_padl.accuracy
+    print svm_clf_poly_padc.accuracy
+    print svm_clf_poly_pad.accuracy
     """
     svm_clf_rbf = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='rbf', scaling=True)
     svm_clf_linear = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='linear')
@@ -50,17 +53,10 @@ def predict_svm():
             Image.fromarray(images[i]).save("/home/sari/data/svm/spread/%d.tiff" % i)
     """
 
-def resizing_t(mode):
-    img, _ = reading.get_data(resize_method=mode)
-    img = img[0]
-    print img
-    print img.shape
-
 
 def main():
-    relu_gd_do = pickle.load(open("results/RGDDOBL2.p"))
-    relu_gd = pickle.load(open("results/RGDDOBL2.p"))
-    print relu_gd_do['accuracy']
+    print "Calling"
+    predict_svm()
 
 
 if __name__ == '__main__':

@@ -1,12 +1,10 @@
 from __future__ import print_function
 
 from PIL import Image
-import numpy as np
 from HTMLParser import HTMLParser
 import urllib2
 import numpy as np
 from imgpreproc import resizing
-import sys
 import cStringIO
 import os
 from sklearn.cross_validation import train_test_split
@@ -14,7 +12,6 @@ from sklearn.cross_validation import train_test_split
 LABELS_TF = 0
 LABELS_NORMAL = 1
 LABELS_DNN = 2
-
 
 
 class ImagesHTMLParser(HTMLParser):
@@ -66,45 +63,37 @@ def read_local(path):
         if f.endswith(".tiff") or f.endswith(".tif"):
             img = Image.open(os.path.join(path, f))
             imgs.append(np.array(img))
-            # imgs.append(img)
     return imgs
 
 
-def get_data(labels_format=LABELS_NORMAL, resize_method=resizing.RESIZE_NONE):
-    imgs_whole = read_local("/home/sari/data/sorted/whole")
-    imgs_noise = read_local("/home/sari/data/sorted/noise")
-    imgs_clumps = read_local("/home/sari/data/sorted/clumps")
-    imgs_spread = read_local("/home/sari/data/sorted/spread")
+def get_data(path, labels_format=LABELS_NORMAL, resize_method=resizing.RESIZE_NONE):
+    imgs_whole = read_local(os.path.join(path, "whole/"))
+    imgs_noise = read_local(os.path.join(path, "noise/"))
+    imgs_clumps = read_local(os.path.join(path, "clumps/"))
+    imgs_spread = read_local(os.path.join(path, "spread/"))
 
-    # Move resizing method from here
-    """
-    res_whole = np.array([resizing.resize(img, 30, 30, mode=resize_method) for img in imgs_whole])
-    res_noise = np.array([resizing.resize(img, 30, 30, mode=resize_method) for img in imgs_noise])
-    res_clumps = np.array([resizing.resize(img, 30, 30, mode=resize_method) for img in imgs_clumps])
-    res_spread = np.array([resizing.resize(img, 30, 30, mode=resize_method) for img in imgs_spread])
-    """
     res_whole = resizing.resize(imgs_whole, 28, 28, mode=resize_method)
     res_noise = resizing.resize(imgs_noise, 28, 28, mode=resize_method)
     res_clumps = resizing.resize(imgs_clumps, 28, 28, mode=resize_method)
     res_spread = resizing.resize(imgs_spread, 28, 28, mode=resize_method)
     labels = []
     if labels_format == LABELS_TF or labels_format == LABELS_DNN:
-        for i in res_whole:
+        for _ in res_whole:
             labels.append([1, 0, 0, 0])
-        for i in res_noise:
+        for _ in res_noise:
             labels.append([0, 1, 0, 0])
-        for i in res_clumps:
+        for _ in res_clumps:
             labels.append([0, 0, 1, 0])
-        for i in res_spread:
+        for _ in res_spread:
             labels.append([0, 0, 0, 1])
     elif labels_format == LABELS_NORMAL:
-        for i in res_whole:
+        for _ in res_whole:
             labels.append(0)
-        for i in res_noise:
+        for _ in res_noise:
             labels.append(1)
-        for i in res_clumps:
+        for _ in res_clumps:
             labels.append(2)
-        for i in res_spread:
+        for _ in res_spread:
             labels.append(3)
 
     res_images = np.append(res_whole, res_noise, axis=0)
@@ -119,31 +108,15 @@ def get_data(labels_format=LABELS_NORMAL, resize_method=resizing.RESIZE_NONE):
         return res_images, labels
 
 
-def get_data_tt(test_size, labels_format=LABELS_NORMAL, resize_method=resizing.RESIZE_NONE):
-    data, labels = get_data(labels_format, resize_method)
+def get_data_tt(path, test_size, labels_format=LABELS_NORMAL, resize_method=resizing.RESIZE_NONE):
+    data, labels = get_data(path, labels_format, resize_method)
     return train_test_split(data, labels, test_size=test_size, random_state=42)
 
-
-def get_test_data(resize_method):
-    images = read_local("/home/sari/data/CP_cropped_0")
-    resized = resizing.resize(images, 28, 28, mode=resize_method)
-    return resized.reshape((resized.shape[0], 28, 28, 1)), images
-
-
-
-def get_data_sample(count):
-    data, labels = get_data()
-    idx = np.random.choice(np.arange(len(data)), count, replace=False)
-    return data[idx], labels[idx]
 
 def get_sample(count, data, labels):
     idx = np.random.choice(np.arange(len(data)), count, replace=False)
     return data[idx], labels[idx]
 
-
-def get_all_data():
-    images = read_local("/home/sari/data/CP_cropped_0")
-    return images
 
 def convert_labels(labels):
     to_ret = []
@@ -151,3 +124,4 @@ def convert_labels(labels):
         to_ret.append(i.argmax())
 
     return to_ret
+

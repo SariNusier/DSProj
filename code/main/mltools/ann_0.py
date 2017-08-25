@@ -1,12 +1,18 @@
+"""
+The code below was made with the help of the tutorials by Martin Gorner on MNIST classifier.
+For more information please go to
+https://github.com/martin-gorner/tensorflow-mnist-tutorial/
+"""
+
+
 import tensorflow as tf
-import matplotlib.pyplot as plt
 from imgpreproc import reading
 from imgpreproc import resizing
-from sklearn import metrics
-import cPickle as pickle
 
-l1 = 400
-l2 = 200
+ITERATIONS = 100000
+DROP_OUT_KEEP = 0.75
+l1 = 200
+l2 = 100
 
 
 def init_weights(shape, name):
@@ -31,12 +37,10 @@ def model(X, w_h, w_h2, w_o, p_keep_input, p_keep_hidden, b1, b2, b3):
         return tf.matmul(h2, w_o) + b3
 
 
-train_X, test_X, train_Y, test_Y = reading.get_data_tt(test_size=0.2, resize_method=resizing.RESIZE_NEAREST,
+train_X, test_X, train_Y, test_Y = reading.get_data_tt("/home/sari/data/sorted/", test_size=0.2, resize_method=resizing.RESIZE_BILINEAR,
                                                        labels_format=reading.LABELS_DNN)
 
 
-print "TRAIN DATA SHAPE: "+ str(train_X.shape)
-print "TEST DATA SHAPE: "+ str(test_X.shape)
 X = tf.placeholder("float", [None, 784], name="X")
 Y = tf.placeholder("float", [None, 4], name="Y")
 
@@ -58,7 +62,6 @@ py_x = model(X, w_h, w_h2, w_o, p_keep_input, p_keep_hidden, b1, b2, b3)
 
 with tf.name_scope("cost"):
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=py_x, labels=Y))
-    # train_op = tf.train.RMSPropOptimizer(0.002, 0.9).minimize(cost)
     train_op = tf.train.GradientDescentOptimizer(0.0002).minimize(cost)
 
     tf.summary.scalar("cost", cost)
@@ -74,11 +77,11 @@ with tf.Session() as sess:
     tf.global_variables_initializer().run()
     crs_ent = []
     accuracies = []
-    for i in range(100000):
+    for i in range(ITERATIONS):
 
         batch_X, batch_Y = reading.get_sample(200, train_X, train_Y)
         cs, _ = sess.run([cost, train_op], feed_dict={X: batch_X, Y: batch_Y,
-                                      p_keep_input: 1, p_keep_hidden: 0.75})
+                                      p_keep_input: 1, p_keep_hidden: DROP_OUT_KEEP})
         summary, acc = sess.run([merged, acc_op], feed_dict={X: test_X, Y: test_Y,
                                                              p_keep_input: 1.0, p_keep_hidden: 1.0})
         writer.add_summary(summary, i)
@@ -87,6 +90,7 @@ with tf.Session() as sess:
         print i, acc
         accuracies.append(acc)
 
+    """
     class_step = py_x.eval(feed_dict={X: test_X, p_keep_input: 1, p_keep_hidden: 1})
     results = []
     for r in class_step:
@@ -99,7 +103,5 @@ with tf.Session() as sess:
     conf_mat = metrics.confusion_matrix(reading.convert_labels(test_Y), results)
     to_return = {'accuracy': accuracies, 'cross_entropy': crs_ent, 'report': report, 'conf_mat': conf_mat}
 
-    pickle.dump(to_return, open("results/Test_ADBL2.p", "wb"))
-
     # sess.run(class_step)
-
+    """

@@ -33,13 +33,15 @@ class SVMClassifier:
         self.f1_score = 0
 
         if test_mode:
-            self.train_X, self.test_X, self.train_Y, self.test_Y = reading.get_data_tt(test_size, resize_method=self.resize_method)
+            self.train_X, self.test_X, self.train_Y, self.test_Y = reading.get_data_tt("/home/sari/data/sorted/",
+                                                                                       test_size,
+                                                                                       resize_method=self.resize_method)
             self.data = self.train_X
             self.labels = self.train_Y
 
         else:
-            self.data, self.labels = reading.get_data(labels_format=reading.LABELS_NORMAL, resize_method=self.resize_method)
-
+            self.data, self.labels = reading.get_data("/home/sari/data/sorted/", labels_format=reading.LABELS_NORMAL,
+                                                      resize_method=self.resize_method)
 
         self.resh = self.scale_input(np.reshape(self.data, [-1, 784]))
         if test_mode:
@@ -49,13 +51,11 @@ class SVMClassifier:
         self.clf.fit(self.resh, self.labels)
 
         if test_mode:
-            count = 0.0
             predictions = []
             for idx, inst in enumerate(self.test_X):
                 a = np.reshape(inst, (1, -1))
                 prediction = self.predict(a)[0]
                 predictions.append(prediction)
-
 
             self.accuracy = metrics.accuracy_score(self.test_Y, predictions)
             self.recall = metrics.recall_score(self.test_Y, predictions, average='macro')
