@@ -13,7 +13,6 @@ def svm_classification():
 
 
 def predict_svm():
-    print "HELLO"
     svm_clf_poly = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True)
     svm_clf_rbf = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='rbf', scaling=True)
     svm_clf_linear = svmclassifier.SVMClassifier(test_size=0.20, test_mode=True, kernel='linear')
@@ -55,7 +54,6 @@ def predict_svm():
 
 
 def main():
-    print "Calling"
     predict_svm()
 
 

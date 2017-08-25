@@ -68,5 +68,3 @@ def test_NN():
     print("Accuracy", accuracy)
     print(summary)
     print(c_m)
-
-test_NN()

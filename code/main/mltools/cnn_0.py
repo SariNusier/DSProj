@@ -6,14 +6,12 @@ https://github.com/martin-gorner/tensorflow-mnist-tutorial/
 
 
 import tensorflow as tf
-from PIL import Image
 from imgpreproc import reading
 from imgpreproc import resizing
-import matplotlib.pyplot as plt
 import math
-from sklearn import metrics
-import cPickle as pickle
 
+ITERATIONS = 50000
+DROP_OUT_KEEP = 0.75
 l1 = 4
 l2 = 8
 l3 = 12
@@ -39,7 +37,6 @@ def model(X, w_c1, w_c2, w_c3, w_f4, w_f5, p_keep_input, p_keep_hidden, b1, b2, 
         Y3 = tf.nn.relu(tf.nn.conv2d(Y2, w_c3, strides=[1, 2, 2, 1], padding='SAME') + b3)
 
     with tf.name_scope("layer4"):
-        print Y3.shape
         YY = tf.reshape(Y3, shape=[-1, 7 * 7 * l3])
 
         Y4 = tf.nn.relu(tf.matmul(YY, w_f4) + b4)
@@ -49,13 +46,11 @@ def model(X, w_c1, w_c2, w_c3, w_f4, w_f5, p_keep_input, p_keep_hidden, b1, b2, 
         return tf.matmul(YY4, w_f5) + b5
 
 
-train_X, test_X, train_Y, test_Y = reading.get_data_tt(test_size=0.2, resize_method=resizing.RESIZE_BILINEAR,
+train_X, test_X, train_Y, test_Y = reading.get_data_tt("/home/sari/data/sorted/", test_size=0.2,
+                                                       resize_method=resizing.RESIZE_BILINEAR,
                                                        labels_format=reading.LABELS_TF)
 
-print train_X.shape
 
-print "TRAIN DATA SHAPE: " + str(train_X.shape)
-print "TEST DATA SHAPE: " + str(test_X.shape)
 X = tf.placeholder("float", [None, 28, 28, 1], name="X")
 Y = tf.placeholder("float", [None, 4], name="Y")
 
@@ -122,6 +117,7 @@ with tf.Session() as sess:
         accuracies.append(acc)
         crs_ent.append(c_train)
 
+    """
     class_step = py_x.eval(feed_dict={X: test_X, p_keep_hidden: 1.0, p_keep_input: 1.0})
     results = []
     print class_step
@@ -134,7 +130,5 @@ with tf.Session() as sess:
     report = metrics.classification_report(reading.convert_labels(test_Y), results)
     conf_mat = metrics.confusion_matrix(reading.convert_labels(test_Y), results)
     to_return = {'accuracy': accuracies, 'cross_entropy': crs_ent, 'report': report, 'conf_mat': conf_mat}
-
-    pickle.dump(to_return, open("/home/sari/workspace/DSProj/code/main/results/CNN6502BC.p", "wb"))
-
+    """
 

@@ -21,11 +21,9 @@ class ImagesHTMLParser(HTMLParser):
         self.data = []
 
     def handle_starttag(self, tag, attrs):
-        # print "Encountered a start tag:", tag
         self.prev_tag = tag
 
     def handle_data(self, data):
-        # print "Encountered some data  :", data
         if self.prev_tag == 'a' and data.strip() != "":
             self.data.append(urllib2.quote(data))
 
@@ -101,7 +99,6 @@ def get_data(path, labels_format=LABELS_NORMAL, resize_method=resizing.RESIZE_NO
     res_images = np.append(res_images, res_spread, axis=0)
     if labels_format == LABELS_TF:
         return res_images.reshape((res_images.shape[0], 28, 28, 1)), np.array(labels)
-        # return np.reshape(res_images, [-1, 784]), np.array(labels)
     if labels_format == LABELS_DNN:
         return np.reshape(res_images, [-1, 784]), np.array(labels)
     if labels_format == LABELS_NORMAL:

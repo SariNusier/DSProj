@@ -31,7 +31,7 @@ def run(path="/home/sari/data/test-inception/test/"):
     for i in imgs_spread:
         true_labels.append("spread")
 
-    label_lines = [line.rstrip() for line in tf.gfile.GFile("/home/sari/workspace/tftest/retrained_labels.txt")]
+    label_lines = [line.rstrip() for line in tf.gfile.GFile("/home/sari/Desktop/tftest/retrained_labels.txt")]
 
     with tf.gfile.FastGFile("/home/sari/Desktop/tftest/retrained_graph.gp", 'rb') as f:
         graph_def = tf.GraphDef()

@@ -37,7 +37,8 @@ def model(X, w_h, w_h2, w_o, p_keep_input, p_keep_hidden, b1, b2, b3):
         return tf.matmul(h2, w_o) + b3
 
 
-train_X, test_X, train_Y, test_Y = reading.get_data_tt("/home/sari/data/sorted/", test_size=0.2, resize_method=resizing.RESIZE_BILINEAR,
+train_X, test_X, train_Y, test_Y = reading.get_data_tt("/home/sari/data/sorted/", test_size=0.2,
+                                                       resize_method=resizing.RESIZE_BILINEAR,
                                                        labels_format=reading.LABELS_DNN)
 
 
